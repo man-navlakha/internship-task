@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../utils/authLocal';
 
+/**
+ * User Registration Page
+ * * Handles new user sign-up with client-side validation.
+ * Redirects to the login page upon successful account creation.
+ */
 export default function RegisterPage() {
   const navigate = useNavigate();
+  
+  // Local state for form fields and UI feedback
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Generic handler for all input changes
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  // Basic validation logic
+  // In a larger app, consider using a library like Yup or Zod here.
   function validate() {
     if (!form.name.trim()) return 'Name is required';
     if (!form.email.trim()) return 'Email is required';
@@ -24,11 +34,17 @@ export default function RegisterPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+
+    // 1. Validate inputs
     const v = validate();
     if (v) { setError(v); return; }
+
     setLoading(true);
     try {
+      // 2. Attempt to register (this throws if email exists)
       registerUser({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+      
+      // 3. Success: Redirect to login
       navigate('/auth/login');
     } catch (err) {
       setError(err.message || 'Registration failed');

@@ -59,7 +59,7 @@ Example stored session:
 ### 1. Clone the Repo
 
 ```
-git clone https://github.com/<your-username>/<your-repo>.git
+git clone https://github.com/man-navlakha/internship-task.git
 cd <your-repo>
 ```
 

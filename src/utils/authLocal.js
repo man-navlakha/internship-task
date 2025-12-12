@@ -1,6 +1,7 @@
 const USERS_KEY = 'users';
 const AUTH_KEY = 'auth';
 
+// Helper to get parsed users from storage
 export function getUsers() {
     return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
 }
@@ -8,7 +9,7 @@ export function getUsers() {
 export function saveUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
-
+// Check if email already exists
 export function registerUser({ name, email, password }) {
     const users = getUsers();
     if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {

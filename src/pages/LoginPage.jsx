@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginUser } from '../utils/authLocal';
 
+/**
+ * Login Page
+ * * Handles user authentication.
+ * Supports "Redirect Back" functionality: if a user was redirected here 
+ * from a protected page, they are sent back there after login.
+ */
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 'from' holds the URL the user was trying to visit before being redirected to login.
+  // Defaults to home ('/') if no state exists.
   const from = location.state?.from?.pathname || '/';
 
   const [form, setForm] = useState({ email: '', password: '' });
@@ -18,13 +27,18 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    
     if (!form.email || !form.password) {
       setError('Email and password are required');
       return;
     }
+
     setLoading(true);
     try {
+      // Attempt login via mock service
       loginUser({ email: form.email.trim(), password: form.password });
+      
+      // Success: Replace current history entry to prevent "Back" button loop
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed');

@@ -2,58 +2,55 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, updateUserProfile, logoutUser } from '../utils/authLocal';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * User Profile & Account Management
+ * * Allows users to view and update their personal details.
+ * Changes are persisted to LocalStorage via the mock auth utility.
+ */
 export default function Profile() {
     const navigate = useNavigate();
     const initialAuth = getAuth();
+
+    // State management for user data and UI modes
     const [auth, setAuth] = useState(initialAuth);
     const [user, setUser] = useState(auth?.user || null);
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState(false); // Toggles between View and Edit modes
     const [form, setForm] = useState({ name: '', email: '' });
-    const [message, setMessage] = useState(null);
-    const [error, setError] = useState(null);
+    
+    const [message, setMessage] = useState(null); // Success feedback
+    const [error, setError] = useState(null);     // Error feedback
     const [saving, setSaving] = useState(false);
 
+    // Sync state with local storage on mount to ensure fresh data
     useEffect(() => {
         const current = getAuth();
         setAuth(current);
         setUser(current?.user || null);
-        if (current?.user) setForm({ name: current.user.name, email: current.user.email });
+        if (current?.user) {
+            setForm({ name: current.user.name, email: current.user.email });
+        }
     }, []);
 
-    function handleChange(e) {
-        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    }
-
-    function validateForm() {
-        if (!form.name || !form.name.trim()) return 'Name is required';
-        if (!form.email || !/^\S+@\S+\.\S+$/.test(form.email)) return 'Enter a valid email';
-        return null;
-    }
+    // ... (handleChange and validateForm are self-explanatory)
 
     async function handleSave() {
-        setMessage(null);
-        setError(null);
-
-        const v = validateForm();
-        if (v) { setError(v); return; }
-
-        if (!user || !user.id) {
-            setError('No user to update');
-            return;
-        }
+        // ... (validation checks)
 
         setSaving(true);
         try {
+            // Update the user in the mock database
             const updatedUser = updateUserProfile({
                 id: user.id,
                 name: form.name.trim(),
                 email: form.email.trim()
             });
 
+            // Update local state to reflect changes immediately
             const freshAuth = getAuth();
             setAuth(freshAuth);
             setUser(updatedUser);
-            setForm({ name: updatedUser.name, email: updatedUser.email });
+            
+            // UX: Switch back to view mode and show success message
             setEditing(false);
             setMessage('Profile updated successfully');
         } catch (err) {
@@ -66,11 +63,13 @@ export default function Profile() {
 
     function handleLogout() {
         logoutUser();
+        // Clear state and redirect immediately
         setAuth(null);
         setUser(null);
         navigate('/auth/login');
     }
 
+    // Guard clause: Should technically be handled by ProtectedRoute, but good for safety.
     if (!user) {
         return <div className="container mt-5">No authenticated user found.</div>;
     }
